@@ -38,17 +38,36 @@ class PaddleOCREngine(OCREngine):
                 #   slow for CPU inference without mkldnn.
                 # - Disable doc orientation/unwarping sub-models (not needed for
                 #   flat invoice/receipt images) to cut load time and memory.
-                # - engine_config disables mkldnn run_mode and PIR executor to avoid
-                #   "ConvertPirAttribute2RuntimeAttribute not support" on Windows.
-                logger.info("Initializing PaddleOCR (lang=%s)...", self.lang)
-                self._ocr = PaddleOCR(
+                # - device: "gpu" when use_gpu is set (e.g. Colab GPU runtime),
+                #   else "cpu". PaddleOCR accepts "gpu"/"gpu:0"/"cpu".
+                # - engine_config: on CPU we disable the PIR executor (enable_new_ir)
+                #   to avoid "ConvertPirAttribute2RuntimeAttribute not support" on
+                #   Windows. On GPU we leave the default engine so CUDA kernels run.
+                device = "gpu" if self.use_gpu else "cpu"
+                kwargs = dict(
                     lang=self.lang,
                     ocr_version="PP-OCRv4",
                     use_doc_orientation_classify=False,
                     use_doc_unwarping=False,
                     use_textline_orientation=False,
-                    engine_config={"run_mode": "paddle", "enable_new_ir": False},
+                    device=device,
                 )
+                if not self.use_gpu:
+                    kwargs["engine_config"] = {"run_mode": "paddle", "enable_new_ir": False}
+
+                logger.info("Initializing PaddleOCR (lang=%s, device=%s)...", self.lang, device)
+                try:
+                    self._ocr = PaddleOCR(**kwargs)
+                except Exception as gpu_exc:
+                    if self.use_gpu:
+                        # Fall back to CPU if the GPU build/driver isn't available.
+                        logger.warning("GPU init failed (%s); falling back to CPU.", gpu_exc)
+                        self.use_gpu = False
+                        kwargs["device"] = "cpu"
+                        kwargs["engine_config"] = {"run_mode": "paddle", "enable_new_ir": False}
+                        self._ocr = PaddleOCR(**kwargs)
+                    else:
+                        raise
             except Exception as exc:
                 self._init_error = exc
                 logger.error("PaddleOCR init failed: %s", exc)
