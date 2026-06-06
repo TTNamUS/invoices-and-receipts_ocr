@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     )
     eval_split: str = Field(default="test", alias="EVAL_SPLIT")
     eval_report_path: Path = Field(
-        default=BASE_DIR / "evaluation_report.json", alias="EVAL_REPORT_PATH"
+        default=BASE_DIR / "output" / "evaluation_report.json", alias="EVAL_REPORT_PATH"
     )
 
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")

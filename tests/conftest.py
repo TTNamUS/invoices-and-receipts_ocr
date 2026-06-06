@@ -73,3 +73,35 @@ def receipt_raw_data_str() -> str:
         {"label": "Date_value", "transcription": "01/02/2020"},
     ]
     return json.dumps({"ocr_labels": labels})
+
+
+@pytest.fixture
+def receipt_gt_str() -> str:
+    """Dataset ``parsed_data`` string for a receipt (no 'header'), modeled on id=0."""
+    inner = (
+        "{'store_name': 'SPEEDWAY0006661', 'store_addr': 'LaPorteIN46350', "
+        "'telephone': '', 'date': '5/19/2017', 'time': '6:29PM', "
+        "'subtotal': '$26.09', 'tax': '$0.00', 'total': '$26.09', "
+        "'ignore': '', 'tips': '', "
+        "'line_items': [{'item_key': '', 'item_name': '#2Diesel', "
+        "'item_value': '', 'item_quantity': ''}]}"
+    )
+    return json.dumps({"json": inner})
+
+
+@pytest.fixture
+def receipt_pred_full() -> dict:
+    """A receipt prediction that matches receipt_gt_str on the present fields."""
+    return {
+        "document_type": "receipt",
+        "store_name": "SPEEDWAY 0006661",
+        "store_addr": "LaPorte IN 46350",
+        "telephone": None,
+        "date": "5/19/2017",
+        "time": "6:29 PM",
+        "subtotal": "$26.09",
+        "tax": "$0.00",
+        "total": "$26.09",
+        "tips": None,
+        "line_items": [{"item_name": "#2 Diesel", "item_quantity": None, "item_value": None}],
+    }
