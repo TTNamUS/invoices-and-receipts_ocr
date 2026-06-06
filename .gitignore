@@ -224,6 +224,5 @@ __marimo__/
 
 # ── Project-specific ──────────────────────────────────────────────
 # Generated evaluation reports (committed examples live in README/docs)
-evaluation_report*.json
 output/
 dataset/
