@@ -1,4 +1,4 @@
-"""System prompt, few-shot examples, and message builder for LLM extraction."""
+"""System prompt and message builder for LLM extraction."""
 
 SYSTEM_PROMPT = """You are a specialized document data extraction engine for invoices and receipts.
 
@@ -67,10 +67,9 @@ Return this exact schema:
 """
 
 def build_messages(ocr_text: str) -> list:
-    """Build multi-turn messages with 2 few-shot examples followed by the query.
+    """Build multi-turn messages with the system prompt and the query.
 
-    Few-shot examples are placed in conversation turns (not the system prompt)
-    per LLM best practices.
+    The system prompt contains the instructions and examples.
     """
     return [
         {"role": "user", "content": f"Extract structured data from this OCR text:\n\n{ocr_text}"},
