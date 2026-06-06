@@ -278,8 +278,12 @@ def _evaluate_receipt(
     gt_date = _str_or_none(receipt_gt.get("date"))
 
     return SampleResult(
+        # Typed by the ground truth (this branch runs only when GT is a receipt),
+        # NOT by pred["document_type"] — the model may misclassify a receipt as an
+        # invoice, and bucketing by its claim would leak receipt fields into the
+        # invoice metrics.
         sample_id=sample_id,
-        document_type=pred.get("document_type", "receipt"),
+        document_type="receipt",
         pred_store_name=pred_sn,
         gt_store_name=gt_sn,
         store_name_match=compare_store_name(pred_sn, gt_sn),

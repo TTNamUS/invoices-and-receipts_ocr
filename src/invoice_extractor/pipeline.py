@@ -22,17 +22,22 @@ def run_pipeline(
     engine: str = "paddleocr",
     model: Optional[str] = None,
     file_name: str = "unknown",
+    extractor: Optional[LLMExtractor] = None,
 ) -> dict:
     """Run OCR then LLM extraction on a single image.
 
     Returns ``{"ocr": <ocr_dict>, "extraction": <dict>}``. The extraction is
     additionally validated against the Pydantic schemas (best-effort, non-fatal)
     — validation never alters the returned values.
+
+    Pass a shared ``extractor`` to reuse one ``LLMExtractor`` across many calls
+    (e.g. the batch runner); otherwise one is created from ``model``/settings.
     """
     logger.info("Pipeline start | file=%s engine=%s", file_name, engine)
     ocr_result = run_ocr(image, engine_name=engine, file_name=file_name)
 
-    extractor = LLMExtractor(model=model)
+    if extractor is None:
+        extractor = LLMExtractor(model=model)
     extraction = extractor.extract(ocr_result["raw_text"])
 
     model_obj = validate_extraction(extraction)

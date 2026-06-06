@@ -48,6 +48,20 @@ def test_evaluate_single_receipt_from_parsed_data(receipt_pred_full, receipt_gt_
     assert "tips" not in ofm
 
 
+def test_receipt_misclassified_as_invoice_stays_receipt(receipt_pred_full, receipt_gt_str):
+    # The model wrongly labels a receipt as an invoice. Bucketing must follow the
+    # ground truth (receipt), not pred["document_type"] — otherwise receipt fields
+    # leak into the invoice metrics.
+    misclassified = {**receipt_pred_full, "document_type": "invoice"}
+    result = evaluate_single(misclassified, receipt_gt_str, "r-mis")
+    assert result.document_type == "receipt"
+    report = aggregate_results([result])
+    assert report.total_invoices_evaluated == 0
+    assert report.total_receipts_evaluated == 1
+    # No receipt-only keys should appear in the invoice optional bucket.
+    assert "store_name" not in report.invoice_optional_accuracy
+
+
 def test_invoice_optional_fields_scored(invoice_pred, invoice_gt_str):
     result = evaluate_single(invoice_pred, invoice_gt_str, "inv-opt")
     ofm = result.optional_field_matches

@@ -19,7 +19,7 @@ from invoice_extractor.evaluation.metrics import (
 from invoice_extractor.evaluation.normalize import parse_ground_truth
 from invoice_extractor.llm import LLMExtractor
 from invoice_extractor.logging_config import get_logger
-from invoice_extractor.ocr import run_ocr
+from invoice_extractor.pipeline import run_pipeline
 
 logger = get_logger(__name__)
 
@@ -209,9 +209,12 @@ def run_evaluation(
         pred = None
         error = None
         try:
-            ocr_result = run_ocr(image, engine_name=engine, file_name=str(sample_id))
-            raw_text = ocr_result["raw_text"]
-            pred = extractor.extract(raw_text)
+            # Single OCR->LLM flow shared with the web demo (see pipeline.run_pipeline).
+            out = run_pipeline(
+                image, engine=engine, file_name=str(sample_id), extractor=extractor
+            )
+            ocr_result = out["ocr"]
+            pred = out["extraction"]
             result = evaluate_single(pred, parsed_data_str, sample_id, sample.get("raw_data", ""))
         except Exception as exc:
             error = str(exc)
