@@ -34,6 +34,7 @@ src/invoice_extractor/        # installable package
 
 web/app.py                    # Streamlit demo
 scripts/run_evaluation.py     # CLI wrapper → evaluation.report:main
+notebooks/                    # Colab notebook runner
 tests/                        # pytest unit tests (no network/OCR needed)
 pyproject.toml                # packaging + deps + pytest/ruff config
 ```
@@ -75,7 +76,10 @@ GEMINI_MODEL=gemini/gemini-3.5-flash
 
 ### 3. Dataset
 
-The dataset lives at `dataset/invoices-and-receipts_ocr_v1/` (gitignored). No additional setup needed.
+The dataset lives at `dataset/invoices-and-receipts_ocr_v1/` (gitignored).  
+
+Following dataset: 
+https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1
 
 ## Usage
 
