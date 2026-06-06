@@ -8,6 +8,10 @@ Image → OCR (PaddleOCR / Tesseract) → raw text + bboxes → LLM (OpenAI / Ge
                                                        Evaluation vs ground-truth parsed_data
 ```
 
+
+https://github.com/user-attachments/assets/3341de97-3a93-44d6-826d-0d86f3ee160b
+
+
 ## Project Structure
 
 ```
